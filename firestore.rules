@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isEmailVerified() && request.auth.token.email == 'nitishkvh1234@gmail.com';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Products ---
+    match /products/{productId} {
+      function isValidProduct(data) {
+        return data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+               data.price is string && data.price.size() < 50 &&
+               data.image is string && data.image.size() < 1000 &&
+               data.category is string;
+      }
+
+      allow read: if true;
+      allow create: if isAdmin() && isValidProduct(incoming()) && isValidId(productId);
+      allow update: if isAdmin() && isValidProduct(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'description', 'price', 'image', 'category', 'tags', 'updatedAt'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // --- Visits ---
+    match /visits/{visitId} {
+      function isValidVisit(data) {
+        return data.timestamp == request.time;
+      }
+
+      allow create: if isValidVisit(incoming()) && isValidId(visitId);
+      allow read, list: if isAdmin();
+    }
+
+    // --- Inquiries ---
+    match /inquiries/{inquiryId} {
+      function isValidInquiry(data) {
+        return data.name is string && data.name.size() > 0 &&
+               data.phone is string && data.phone.size() > 0 &&
+               data.message is string && data.message.size() > 0 &&
+               data.createdAt == request.time;
+      }
+
+      allow create: if isValidInquiry(incoming()) && isValidId(inquiryId);
+      allow read, update, delete, list: if isAdmin();
+    }
+
+    // --- Settings ---
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

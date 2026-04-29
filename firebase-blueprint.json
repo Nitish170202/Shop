@@ -1,0 +1,74 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A tea product available for sale.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the tea." },
+        "description": { "type": "string", "description": "Description of the tea." },
+        "price": { "type": "string", "description": "Price of the tea (e.g., ₹280)." },
+        "image": { "type": "string", "description": "URL to the product image." },
+        "category": { "type": "string", "description": "Category like 'High-Altitude Black', 'Floral Series'." },
+        "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags like 'Strong', 'Malty'." },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "price", "image", "category"]
+    },
+    "Visit": {
+      "title": "Visit",
+      "description": "A record of a user visiting the website.",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time" },
+        "userAgent": { "type": "string" },
+        "referrer": { "type": "string" }
+      }
+    },
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "A contact form submission.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["new", "read", "responded"] }
+      },
+      "required": ["name", "phone", "message"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "Global application configuration.",
+      "type": "object",
+      "properties": {
+        "instagram": { "type": "string" },
+        "facebook": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Collection of tea products."
+    },
+    "/visits/{visitId}": {
+      "schema": "Visit",
+      "description": "Log of website visits."
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "Inquiry",
+      "description": "Contact form submissions."
+    },
+    "/settings/{settingId}": {
+      "schema": "Setting",
+      "description": "Footer and contact settings."
+    }
+  }
+}
