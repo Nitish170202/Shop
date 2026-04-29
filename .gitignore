@@ -2,7 +2,6 @@ node_modules/
 build/
 dist/
 coverage/
-firebase-applet-config.json/
 .DS_Store
 *.log
 .env*
